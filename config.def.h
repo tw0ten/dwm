@@ -39,7 +39,7 @@ static const Rule rules[] = {
 	 *	WM_NAME(STRING) = title
 	 */
 	/* class      instance    title       tags mask     isfloating   monitor */
-	{NULL,	NULL,	NULL,	0,	1,	-1}
+	{"widget",	NULL,	NULL,	0,	1,	-1}
 };
 
 /* layout(s) */
@@ -71,16 +71,16 @@ static const Layout layouts[] = {
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_bg, "-nf", col_fg, "-sb", col_ac, "-sf", col_bg, topbar ? NULL : "-b", NULL };
 static const char *termcmd[]  = { "st", NULL };
-static const char *slockcmd[] = { "slock", NULL };
+static const char *lockcmd[] = { "slock", NULL };
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY,                       XK_z,      spawn,          SHCMD("smenu") },
-	{ MODKEY,                       XK_x,      spawn,          SHCMD("dspotify") },
+	{ MODKEY,                       XK_z,      spawn,          SHCMD("smenu")},
+	{ MODKEY,                       XK_x,      spawn,          SHCMD("dspotify")},
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY|ShiftMask,             XK_s,      spawn,          SHCMD("flameshot gui") },
-	{ MODKEY,                       XK_c,      spawn,          {.v = slockcmd } },
+	{ MODKEY|ShiftMask,             XK_s,      spawn,          SHCMD("flameshot gui")},
+	{ MODKEY,                       XK_c,      spawn,          {.v = lockcmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
@@ -116,8 +116,8 @@ static const Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_Delete, quit,           {0} },
-	{ MODKEY,                       XK_Delete, spawn,          SHCMD("dconfirm 'poweroff' 'systemctl poweroff'") },
-	{ MODKEY,                       XK_BackSpace, spawn,       SHCMD("dconfirm 'reboot' 'systemctl reboot'") },
+	{ MODKEY,                       XK_Delete, spawn,          SHCMD("dconfirm 'poweroff' 'systemctl poweroff'")},
+	{ MODKEY,                       XK_BackSpace, spawn,       SHCMD("dconfirm 'reboot' 'systemctl reboot'")},
 };
 
 /* button definitions */
