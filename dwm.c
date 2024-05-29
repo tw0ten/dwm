@@ -61,7 +61,7 @@
 
 /* enums */
 enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
-enum { SchemeNorm, SchemeSel, SchemeNorm0, SchemeNorm1, SchemeSel0, SchemeSel1 }; /* color schemes */
+enum { SchemeNorm, SchemeSel, SchemeInv }; /* color schemes */
 enum { NetSupported, NetWMName, NetWMIcon, NetWMState, NetWMCheck,
        NetWMFullscreen, NetActiveWindow, NetWMWindowType,
        NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
@@ -739,10 +739,8 @@ drawbar(Monitor *m)
 
 	int nullw = TEXTW("\0");
 
-	drw_setscheme(drw, scheme[SchemeNorm]);
 	if(m == selmon){
 		char *stextc = strdup(stext);
-
 		char *tokn = strtok(stextc, "\\");
 		int toknw = TEXTW(tokn);
 		char *toki = strtok(NULL, "\\");
@@ -781,7 +779,7 @@ drawbar(Monitor *m)
 
 	for (i = 0; i < LENGTH(tags); i++) {
 		w = TEXTW(tags[i]);
-		drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? (i%2==0 ? SchemeSel0 : SchemeSel1) : (i%2==0 ? SchemeNorm0 : SchemeNorm1)]);
+		drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeInv : SchemeNorm]);
 		drw_text(drw, x, 0, w, bh, lrpad / 2, tags[i], urg & 1 << i);
 		j=0;
 		for(c = m->clients; c; c=c->next){
@@ -828,7 +826,7 @@ drawbar(Monitor *m)
 		if (m->sel) {
 			int tw = MIN(TEXTW(m->sel->name)+(m->sel->icon ? m->sel->icw : 0), w);
 			int fleft = m->ww/2+tw/2 < x+w;
-			int fright /* damn */ = m->ww/2-tw/2 > x;
+			int fright = m->ww/2-tw/2 > x;
 
 			if(fright){
 				x = x+w-tw;
@@ -837,29 +835,30 @@ drawbar(Monitor *m)
 			}
 
 			if(adjwindows&&tw<w&&!(next==m->sel&&prev==m->sel)){
-				drw_setscheme(drw, scheme[SchemeNorm]);
-
 				int twr = MIN(TEXTW(prev->name),x-orx);
 				if(fright)
 					drw_text(drw, x-twr-(twr==x-orx?nullw/2:0), 0, twr, bh, lrpad/2, prev->name, 0);
+
 				int twl = MIN(TEXTW(next->name),orx+w-x-tw);
 				if(fleft&&twl>nullw)
 					drw_text(drw, x+tw, 0, twl, bh, lrpad/2, next->name, 0);
 			}
-			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
-
+			
+			if(m==selmon)
+				drw_setscheme(drw, scheme[SchemeInv]);
+			
 			if(roundwin){
 				drw_arc(drw, x-nullw/3, 0, bh/2, bh-1, 1, 1, 64*90,64*180);
 				drw_arc(drw, x+tw-nullw/3-1, 0, bh/2, bh-1, 1, 1, 64*270,64*180);
 			}
 
 			drw_text(drw, x, 0, tw, bh, lrpad / 2 + (m->sel->icon ? m->sel->icw : 0), m->sel->name, 0);
-			
-			if (m->sel->icon)
+
+			if(m->sel->icon)
 				drw_pic(drw, x + lrpad / 2 - m->sel->icw/2, (bh - m->sel->ich) / 2, m->sel->icw, m->sel->ich, m->sel->icon);
 
-			if (m->sel->isfloating)
-				drw_rect(drw, x + tw/2 - nullw/2+1, bh-2, nullw-2, 3, m->sel->isfixed, 0);
+			if(m->sel->isfloating)
+				drw_rect(drw, x + tw/4, bh-2, tw/2, 3, m->sel->isfixed, 0);
 		}
 	}
 

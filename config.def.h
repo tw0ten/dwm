@@ -20,11 +20,8 @@ static const char col_ac[] = "#40E0D0";
 static const char *colors[][3]      = {
 	/*               fg      bg      border   */
 	[SchemeNorm] = { col_fg, col_bg, col_bg },
-	[SchemeNorm0] = { col_fg, "#181818", "#181818" },
-	[SchemeNorm1] = { col_fg, "#222222", "#222222" },
 	[SchemeSel]  = { col_bg, col_ac, col_ac },
-	[SchemeSel0] = { col_bg, "#1EBAAA", "#1EBAAA" },
-	[SchemeSel1] = { col_bg, "#70E8DC", "#70E8DC" }
+	[SchemeInv]  = { col_bg, col_fg, NULL },
 };
 
 /* tagging */
@@ -39,7 +36,7 @@ static const Rule rules[] = {
 	 *	WM_NAME(STRING) = title
 	 */
 	/* class      instance    title       tags mask     isfloating   monitor */
-	{"widget",	NULL,	NULL,	0,	1,	-1}
+	{"float",	NULL,	NULL,	0,	1,	-1}
 };
 
 /* layout(s) */
