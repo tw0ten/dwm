@@ -28,7 +28,7 @@ static const char *colors[][3]      = {
 static const char *tags[] = { ".1", "~2", "#3", "+4", "-5", "=6", "/7", "%8", "@9" };
 
 #include "shift-tools.c"
-#include "fibonacci.c"
+#include "layouts.c"
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -49,6 +49,7 @@ static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "T",        tile },    /* first entry is default */
 	{ "F",        NULL },    /* no layout function means floating behavior */
+	{ "O",        overlay },
 	{ "M",        monocle },
 	{ "S",        spiral },
 };
@@ -90,8 +91,9 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
 	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
-	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
-	{ MODKEY,                       XK_s,      setlayout,      {.v = &layouts[3]} },
+	{ MODKEY,                       XK_o,      setlayout,      {.v = &layouts[2]} },
+	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[3]} },
+	{ MODKEY,                       XK_s,      setlayout,      {.v = &layouts[4]} },
 	{ MODKEY,                       XK_space,  setlayout,      {0} },
 	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
 	{ MODKEY|ShiftMask,             XK_f,      togglefullscr,  {0} },
