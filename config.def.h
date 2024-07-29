@@ -11,7 +11,6 @@ static const int roundstat=1,roundwin=1;        /* use arcs to decorate status &
 static const int adjwindows         = 1;        /* draw titles of next & prev clients */
 static const int warpres            = 0;        /* warp cursor to edge of window when resizing */
 static const char *fonts[]          = { "JetBrainsMono-Regular:size=8", "SymbolsNerdFontMono-Regular:size=6" };
-static const char dmenufont[]       = "JetBrainsMono-Regular:size=8";
 
 static const char col_bg[] = "#202020";
 static const char col_fg[] = "#FFFFFF";
@@ -40,9 +39,9 @@ static const Rule rules[] = {
 };
 
 /* layout(s) */
-static const float mfact     = 0.5; /* factor of master area size [0.05..0.95] */
-static const int nmaster     = 1;    /* number of clients in master area */
-static const int resizehints = 0;    /* 1 means respect size hints in tiled resizals */
+static const float mfact = 0.5; /* factor of master area size [0.05..0.95] */
+static const int nmaster = 1; /* number of clients in master area */
+static const int resizehints = 0; /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 0; /* 1 will force focus on the fullscreen window */
 
 static const Layout layouts[] = {
@@ -67,7 +66,7 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_bg, "-nf", col_fg, "-sb", col_ac, "-sf", col_bg, topbar ? NULL : "-b", NULL };
+static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, topbar ? NULL : "-b", NULL };
 static const char *termcmd[]  = { "st", NULL };
 static const char *lockcmd[] = { "slock", NULL };
 
