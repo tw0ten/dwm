@@ -874,7 +874,7 @@ drawbar(Monitor *m)
 				drw_setscheme(drw, scheme[SchemeInv]);
 			
 			if(roundwin){
-				drw_arc(drw, x-nullw/3, 0, bh/2, bh-1, 1, 1, 64*90,64*180);
+				drw_arc(drw, x-nullw/3+1, 0, bh/2, bh-1, 1, 1, 64*90,64*180);
 				drw_arc(drw, x+tw-nullw/3-1, 0, bh/2, bh-1, 1, 1, 64*270,64*180);
 			}
 
