@@ -2,14 +2,14 @@
 
 /* appearance */
 #define ICONSIZE 16   /* icon size */
-static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int gappx     = 4;
-static const unsigned int snap      = 8;       /* snap pixel */
-static const int showbar            = 1;        /* 0 means no bar */
-static const int topbar             = 0;        /* 0 means bottom bar */
 static const int roundstat=1,roundwin=1;        /* use arcs to decorate status & win title */
 static const int adjwindows         = 1;        /* draw titles of next & prev clients */
 static const int warpres            = 0;        /* warp cursor to edge of window when resizing */
+static const unsigned int borderpx  = 1;        /* border pixel of windows */
+static const unsigned int snap      = 8;        /* snap pixel */
+static const int showbar            = 1;        /* 0 means no bar */
+static const int topbar             = 0;        /* 0 means bottom bar */
 static const char *fonts[]          = { "JetBrainsMono-Regular:size=8", "SymbolsNerdFontMono-Regular:size=6" };
 
 static const char col_bg[] = "#202020";
@@ -24,7 +24,7 @@ static const char *colors[][3]      = {
 };
 
 /* tagging */
-static const char *tags[] = { ".1", "~2", "#3", "+4", "-5", "=6", "/7", "%8", "@9" };
+static const char *tags[] = { "!1", "@2", "#3", "$4", "%5", "^6", "&7", "*8", "(9" };
 
 #include "shift-tools.c"
 #include "layouts.c"
@@ -72,12 +72,13 @@ static const char *lockcmd[] = { "slock", NULL };
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY,                       XK_z,      spawn,          SHCMD("smenu")},
-	{ MODKEY,                       XK_x,      spawn,          SHCMD("dspotify")},
-	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY|ShiftMask,             XK_s,      spawn,          SHCMD("flameshot gui")},
+	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_c,      spawn,          {.v = lockcmd } },
+	{ MODKEY|ShiftMask,             XK_s,      spawn,          SHCMD("flameshot gui")},
+	{ MODKEY,                       XK_z,      spawn,          SHCMD("smenu")},
+	{ MODKEY,                       XK_Delete, spawn,          SHCMD("dconfirm 'poweroff' 'systemctl poweroff'")},
+	{ MODKEY,                       XK_BackSpace, spawn,       SHCMD("dconfirm 'reboot' 'systemctl reboot'")},
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
@@ -93,7 +94,6 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_o,      setlayout,      {.v = &layouts[2]} },
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[3]} },
 	{ MODKEY,                       XK_s,      setlayout,      {.v = &layouts[4]} },
-	{ MODKEY,                       XK_space,  setlayout,      {0} },
 	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
 	{ MODKEY|ShiftMask,             XK_f,      togglefullscr,  {0} },
 	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
@@ -114,8 +114,6 @@ static const Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_Delete, quit,           {0} },
-	{ MODKEY,                       XK_Delete, spawn,          SHCMD("dconfirm 'poweroff' 'systemctl poweroff'")},
-	{ MODKEY,                       XK_BackSpace, spawn,       SHCMD("dconfirm 'reboot' 'systemctl reboot'")},
 };
 
 /* button definitions */
@@ -124,10 +122,7 @@ static const Button buttons[] = {
 	/* click                event mask      button          function        argument */
 	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[0]} },
-	//{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
-	//{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
-	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 	{ ClkTagBar,            0,              Button1,        view,           {0} },
 	{ ClkTagBar,            0,              Button3,        toggleview,     {0} },
