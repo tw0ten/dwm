@@ -96,8 +96,3 @@ tile(Monitor *m)
 				ty += HEIGHT(c);
 		}
 }
-
-void
-overlay(Monitor *m)
-{
-}

@@ -755,12 +755,12 @@ getfocusstack(const int arg)
 void
 drawbar(Monitor *m)
 {
+	if (!m->showbar)
+		return;
+
 	int x, w, tw = 0;
 	unsigned int i, occ = 0, urg = 0;
 	Client *c;
-
-	if (!m->showbar)
-		return;
 
 	int nullw = TEXTW("\0");
 
@@ -794,47 +794,34 @@ drawbar(Monitor *m)
 
 	x = 0;
 
-	int j;
-	int cam;
-	int sone;
-	int padding = 2;
-	int spacing = 2;
-	Client *next = getfocusstack(-1);
-	Client *prev = getfocusstack(1);
-
 	for (i = 0; i < LENGTH(tags); i++) {
 		w = TEXTW(tags[i]);
 		drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeInv : SchemeNorm]);
 		drw_text(drw, x, 0, w, bh, lrpad / 2, tags[i], urg & 1 << i);
-		j=0;
-		for(c = m->clients; c; c=c->next){
-			if(c->tags & (1<<i)){
-				j++;
+
+		int cam = 0;
+		for(c = m->clients; c; c=c->next)
+			if(c->tags & (1<<i))
+				cam++;
+		if (cam) {
+			int padding = 2;
+			int spacing = 2;
+			int sone = (w - padding * 2 - (cam - 1) * spacing) / cam;
+			padding += (w - sone * cam - (cam - 1) * spacing - padding * 2) / 2;
+
+			if(!sone) {
+				padding = spacing * 2;
+				sone = w - padding * 2;
+				cam = 1;
+			}
+
+			for(int j = 0; j < cam; j++) {
+				drw_rect(drw, x + padding + j * spacing + sone * j, bh-2, sone, 4,
+						m == selmon && selmon->sel && selmon->sel->tags & 1 << i,
+						urg & 1 << i);
 			}
 		}
-		cam=j;
-		
-		if(cam>0) {
-			sone = (w - padding * 2 - (cam - 1) * spacing) / cam;
-			padding += (w - sone * cam - (cam -1) * spacing - padding * 2) / 2;
-		} else {
-			x+=w;
-			continue;
-		}
 
-		if(sone<1){
-			padding = 4;
-			sone = w - padding * 2;
-			cam = 1;
-		}
-
-		for(j=0; j<cam; j++){
-			drw_rect(drw, x + padding + j * spacing + sone * j, bh-2, sone, 4,
-				m == selmon && selmon->sel && selmon->sel->tags & 1 << i,
-				urg & 1 << i);
-		}
-
-		padding = 2;
 		x += w;
 	}
 
@@ -846,12 +833,12 @@ drawbar(Monitor *m)
 	if ((w = m->ww - tw - x) > bh) {
 		drw_setscheme(drw, scheme[SchemeNorm]);
 		drw_rect(drw, x, 0, w, bh, 1, 1);
-		if(roundwin) w-=nullw/2;
+		if(roundwin) w -= nullw/2;
 
 		if (m->sel) {
 			int tw = MIN(TEXTW(m->sel->name)+(m->sel->icon ? m->sel->icw : 0), w);
-			int fleft = m->ww/2+tw/2 < x+w;
-			int fright = m->ww/2-tw/2 > x;
+			int fleft = m->ww/2 + tw/2 < x + w;
+			int fright = m->ww/2 - tw/2 > x;
 
 			if(fright){
 				x = x+w-tw;
@@ -859,28 +846,32 @@ drawbar(Monitor *m)
 					x = m->ww/2-tw/2;
 			}
 
-			if(adjwindows&&tw<w&&!(next==m->sel&&prev==m->sel)){
-				int twr = MIN(TEXTW(prev->name),x-orx);
-				if(fright)
-					drw_text(drw, x-twr-(twr==x-orx?nullw/2:0), 0, twr, bh, lrpad/2, prev->name, 0);
-
-				int twl = MIN(TEXTW(next->name),orx+w-x-tw);
-				if(fleft&&twl>nullw)
-					drw_text(drw, x+tw, 0, twl, bh, lrpad/2, next->name, 0);
+			if(adjwindows && tw < w) {
+				Client *next = getfocusstack(-1);
+				Client *prev = getfocusstack(+1);
+				if(!(next == m->sel && prev == m->sel)){
+					if(fright) {
+						int twr = MIN(TEXTW(prev->name), x - orx);
+						drw_text(drw, x - twr - (twr == x - orx ? nullw/2 : 0), 0, twr, bh, lrpad/2, prev->name, 0);
+					}
+					int twl = MIN(TEXTW(next->name), orx + w - x - tw);
+					if(fleft && twl > nullw)
+						drw_text(drw, x+tw, 0, twl, bh, lrpad/2, next->name, 0);
+				}
 			}
 			
 			if(m==selmon)
 				drw_setscheme(drw, scheme[SchemeInv]);
 			
 			if(roundwin){
-				drw_arc(drw, x-nullw/3+1, 0, bh/2, bh-1, 1, 1, 64*90,64*180);
-				drw_arc(drw, x+tw-nullw/3-1, 0, bh/2, bh-1, 1, 1, 64*270,64*180);
+				drw_arc(drw, x - nullw/3 + 1, 0, bh/2, bh-1, 1, 1, 64*90,64*180);
+				drw_arc(drw, x + tw - nullw/3 - 1, 0, bh/2, bh-1, 1, 1, 64*270,64*180);
 			}
 
 			drw_text(drw, x, 0, tw, bh, lrpad / 2 + (m->sel->icon ? m->sel->icw : 0), m->sel->name, 0);
 
 			if(m->sel->icon)
-				drw_pic(drw, x + lrpad / 2 - m->sel->icw/2, (bh - m->sel->ich) / 2, m->sel->icw, m->sel->ich, m->sel->icon);
+				drw_pic(drw, x + lrpad/2 - m->sel->icw/2, (bh - m->sel->ich) / 2, m->sel->icw, m->sel->ich, m->sel->icon);
 
 			if(m->sel->isfloating)
 				drw_rect(drw, x + tw/4, bh-2, tw/2, 3, m->sel->isfixed, 0);

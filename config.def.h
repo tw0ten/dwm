@@ -15,7 +15,6 @@ static const char *fonts[]          = { "JetBrainsMono-Regular:size=8", "Symbols
 static const char col_bg[] = "#202020";
 static const char col_fg[] = "#FFFFFF";
 static const char col_ac[] = "#40E0D0";
-
 static const char *colors[][3]      = {
 	/*               fg      bg      border   */
 	[SchemeNorm] = { col_fg, col_bg, col_bg },
@@ -48,37 +47,26 @@ static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "T",        tile },    /* first entry is default */
 	{ "F",        NULL },    /* no layout function means floating behavior */
-	{ "O",        overlay },
 	{ "M",        monocle },
 	{ "S",        spiral },
 };
 
-/* key definitions */
-#define MODKEY Mod4Mask
-#define TAGKEYS(KEY,TAG) \
-	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
-
-/* helper for spawning shell commands in the pre dwm-5.0 fashion */
-#define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
-
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, topbar ? NULL : "-b", NULL };
-static const char *termcmd[]  = { "st", NULL };
-static const char *lockcmd[] = { "slock", NULL };
 
+#define MODKEY Mod4Mask
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
-	{ MODKEY,                       XK_c,      spawn,          {.v = lockcmd } },
-	{ MODKEY|ShiftMask,             XK_s,      spawn,          SHCMD("flameshot gui")},
-	{ MODKEY,                       XK_z,      spawn,          SHCMD("smenu")},
-	{ MODKEY,                       XK_Delete, spawn,          SHCMD("dconfirm 'poweroff' 'systemctl poweroff'")},
-	{ MODKEY,                       XK_BackSpace, spawn,       SHCMD("dconfirm 'reboot' 'systemctl reboot'")},
+	{ MODKEY|ShiftMask,             XK_Delete, quit,           {0} },
+	{ MODKEY,                       XK_x,      spawn,          {.v = dmenucmd } },
+	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v=(const char *[]){"st", NULL}}},
+	{ MODKEY,                       XK_c,      spawn,          {.v=(const char *[]){"slock", NULL}}},
+	{ MODKEY|ShiftMask,             XK_s,      spawn,          {.v=(const char *[]){"flameshot", "gui", NULL}}},
+	{ MODKEY,                       XK_z,      spawn,          {.v=(const char *[]){"smenu", NULL}}},
+	{ MODKEY,                       XK_Delete, spawn,          {.v=(const char *[]){"dconfirm", "poweroff", "systemctl poweroff", NULL}}},
+	{ MODKEY,                       XK_BackSpace, spawn,       {.v=(const char *[]){"dconfirm", "reboot", "systemctl reboot", NULL}}},
+
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
@@ -89,11 +77,6 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_Return, zoom,           {0} },
 	{ MODKEY,                       XK_Tab,    view,           {0} },
 	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
-	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
-	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
-	{ MODKEY,                       XK_o,      setlayout,      {.v = &layouts[2]} },
-	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[3]} },
-	{ MODKEY,                       XK_s,      setlayout,      {.v = &layouts[4]} },
 	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
 	{ MODKEY|ShiftMask,             XK_f,      togglefullscr,  {0} },
 	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
@@ -104,16 +87,17 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
 	{ MODKEY,                       XK_q,      shiftview,      { -1 } },
 	{ MODKEY,                       XK_e,      shiftview,      { +1 } },
-	TAGKEYS(                        XK_1,                      0)
-	TAGKEYS(                        XK_2,                      1)
-	TAGKEYS(                        XK_3,                      2)
-	TAGKEYS(                        XK_4,                      3)
-	TAGKEYS(                        XK_5,                      4)
-	TAGKEYS(                        XK_6,                      5)
-	TAGKEYS(                        XK_7,                      6)
-	TAGKEYS(                        XK_8,                      7)
-	TAGKEYS(                        XK_9,                      8)
-	{ MODKEY|ShiftMask,             XK_Delete, quit,           {0} },
+
+	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
+	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
+	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
+	{ MODKEY,                       XK_s,      setlayout,      {.v = &layouts[3]} },
+#define TAG(k,t) \
+	{ MODKEY,                       k,         view,           {.ui = 1 << t} }, \
+	{ MODKEY|ControlMask,           k,         toggleview,     {.ui = 1 << t} }, \
+	{ MODKEY|ShiftMask,             k,         tag,            {.ui = 1 << t} }, \
+	{ MODKEY|ControlMask|ShiftMask, k,         toggletag,      {.ui = 1 << t} },
+	TAG(XK_1,0)TAG(XK_2,1)TAG(XK_3,2)TAG(XK_4,3)TAG(XK_5,4)TAG(XK_6,5)TAG(XK_7,6)TAG(XK_8,7)TAG(XK_9,8)
 };
 
 /* button definitions */
