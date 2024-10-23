@@ -34,7 +34,7 @@ static const Rule rules[] = {
 	 *	WM_NAME(STRING) = title
 	 */
 	/* class      instance    title       tags mask     isfloating   monitor */
-	{"float",	NULL,	NULL,	0,	1,	-1}
+	{ "float", NULL, NULL, 0, 1, -1 }
 };
 
 /* layout(s) */
@@ -60,12 +60,12 @@ static const Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY|ShiftMask,             XK_Delete, quit,           {0} },
 	{ MODKEY,                       XK_x,      spawn,          {.v = dmenucmd } },
-	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v=(const char *[]){"st", NULL}}},
-	{ MODKEY,                       XK_c,      spawn,          {.v=(const char *[]){"slock", NULL}}},
-	{ MODKEY|ShiftMask,             XK_s,      spawn,          {.v=(const char *[]){"flameshot", "gui", NULL}}},
+	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v=(const char *[]){"terminal", NULL}}},
+	{ MODKEY,                       XK_c,      spawn,          {.v=(const char *[]){"lock", NULL}}},
 	{ MODKEY,                       XK_z,      spawn,          {.v=(const char *[]){"smenu", NULL}}},
 	{ MODKEY,                       XK_Delete, spawn,          {.v=(const char *[]){"dconfirm", "poweroff", "systemctl poweroff", NULL}}},
 	{ MODKEY,                       XK_BackSpace, spawn,       {.v=(const char *[]){"dconfirm", "reboot", "systemctl reboot", NULL}}},
+	{ MODKEY|ShiftMask,             XK_s,      spawn,          {.v=(const char *[]){"screenshot", NULL}}},
 
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
