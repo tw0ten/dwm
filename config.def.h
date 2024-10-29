@@ -12,14 +12,11 @@ static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 0;        /* 0 means bottom bar */
 static const char *fonts[]          = { "JetBrainsMono-Regular:size=8", "SymbolsNerdFontMono-Regular:size=6" };
 
-static const char col_bg[] = "#202020";
-static const char col_fg[] = "#FFFFFF";
-static const char col_ac[] = "#40E0D0";
 static const char *colors[][3]      = {
 	/*               fg      bg      border   */
-	[SchemeNorm] = { col_fg, col_bg, col_bg },
-	[SchemeSel]  = { col_bg, col_ac, col_ac },
-	[SchemeInv]  = { col_bg, col_fg, NULL },
+	[SchemeNorm] = { "#FFFFFF", "#202020", "#202020" },
+	[SchemeSel]  = { "#202020", "#40E0D0", "#40E0D0" },
+	[SchemeInv]  = { "#202020", "#FFFFFF", NULL },
 };
 
 /* tagging */
