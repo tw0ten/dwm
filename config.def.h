@@ -1,11 +1,10 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-#define ICONSIZE 16   /* icon size */
+#define ICONSIZE 16
+#define USE_ARCS
+// #define WARP_ON_RESIZE
 static const unsigned int gappx     = 4;
-static const int roundstat=1,roundwin=1;        /* use arcs to decorate status & win title */
-static const int adjwindows         = 1;        /* draw titles of next & prev clients */
-static const int warpres            = 0;        /* warp cursor to edge of window when resizing */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 8;        /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
@@ -64,7 +63,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_BackSpace, spawn,       {.v=(const char *[]){"dconfirm", "reboot", "systemctl reboot", NULL}}},
 	{ MODKEY|ShiftMask,             XK_s,      spawn,          {.v=(const char *[]){"screenshot", NULL}}},
 
-	{ MODKEY,                       XK_b,      togglebar,      {0} },
+	{ MODKEY,                       XK_space,  togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },

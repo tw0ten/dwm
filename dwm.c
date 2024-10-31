@@ -773,15 +773,22 @@ drawbar(Monitor *m)
 		char *toks = strtok(NULL, "\\");
 		int toksw = TEXTW(toks);
 
-		tw = (toknw + tokiw + toksw-nullw*(roundstat ? 1.5 : 2)) - lrpad + 2; /* 2px right padding */
+		float mg = nullw;
+#ifdef USE_ARCS
+		mg *= 1.5;
+#else
+		mg *= 2;
+#endif
+		tw = (toknw + tokiw + toksw - mg) - lrpad + 2; /* 2px right padding */
 		drw_setscheme(drw, scheme[SchemeNorm]);
 		drw_text(drw, m->ww - tw, 0, toknw, bh, 0, tokn, 0);
 		drw_setscheme(drw, scheme[SchemeSel]);
 		drw_text(drw, m->ww - tw + toknw-nullw, 0, tokiw, bh, 0, toki, 1);
-		if(toksw>nullw) {
-			if(roundstat)
-				drw_arc(drw, m->ww-tw + tokiw + toknw - nullw*2-1, -1, bh, bh+1, 1, 1, 64*90, 64*180);
-			drw_text(drw, m->ww - tw + tokiw + toknw-nullw*(roundstat ? 1.5 : 2), 0, toksw, bh, 0, toks, 0);
+		if(toksw > nullw) {
+#ifdef USE_ARCS
+			drw_arc(drw, m->ww-tw + tokiw + toknw - nullw * 2 - 1, -1, bh, bh + 1, 1, 1, 64*90, 64*180);
+#endif
+			drw_text(drw, m->ww - tw + tokiw + toknw - mg, 0, toksw, bh, 0, toks, 0);
 		}
 	}
 	
@@ -833,8 +840,9 @@ drawbar(Monitor *m)
 	if ((w = m->ww - tw - x) > bh) {
 		drw_setscheme(drw, scheme[SchemeNorm]);
 		drw_rect(drw, x, 0, w, bh, 1, 1);
-		if(roundwin) w -= nullw/2;
-
+#ifdef USE_ARCS
+		w -= nullw/2;
+#endif
 		if (m->sel) {
 			int tw = MIN(TEXTW(m->sel->name)+(m->sel->icon ? m->sel->icw : 0), w);
 			int fleft = m->ww/2 + tw/2 < x + w;
@@ -846,27 +854,29 @@ drawbar(Monitor *m)
 					x = m->ww/2-tw/2;
 			}
 
-			if(adjwindows && tw < w) {
+			if(tw < w) {
 				Client *next = getfocusstack(-1);
-				Client *prev = getfocusstack(+1);
-				if(!(next == m->sel && prev == m->sel)){
+				if(next != m->sel) {
+					Client *prev = getfocusstack(+1);
 					if(fright) {
 						int twr = MIN(TEXTW(prev->name), x - orx);
 						drw_text(drw, x - twr - (twr == x - orx ? nullw/2 : 0), 0, twr, bh, lrpad/2, prev->name, 0);
 					}
-					int twl = MIN(TEXTW(next->name), orx + w - x - tw);
-					if(fleft && twl > nullw)
-						drw_text(drw, x+tw, 0, twl, bh, lrpad/2, next->name, 0);
+					if(fleft) {
+						int twl = MIN(TEXTW(next->name), orx + w - x - tw);
+						if(twl > nullw)
+							drw_text(drw, x + tw, 0, twl, bh, lrpad/2, next->name, 0);
+					}
 				}
 			}
 			
 			if(m==selmon)
 				drw_setscheme(drw, scheme[SchemeInv]);
 			
-			if(roundwin){
-				drw_arc(drw, x - nullw/3 + 1, 0, bh/2, bh-1, 1, 1, 64*90,64*180);
-				drw_arc(drw, x + tw - nullw/3 - 1, 0, bh/2, bh-1, 1, 1, 64*270,64*180);
-			}
+#ifdef USE_ARCS
+			drw_arc(drw, x - nullw/3 + 1, 0, bh/2, bh-1, 1, 1, 64*90,64*180);
+			drw_arc(drw, x + tw - nullw/3 - 1, 0, bh/2, bh-1, 1, 1, 64*270,64*180);
+#endif
 
 			drw_text(drw, x, 0, tw, bh, lrpad / 2 + (m->sel->icon ? m->sel->icw : 0), m->sel->name, 0);
 
@@ -1512,25 +1522,27 @@ resizeclient(Client *c, int x, int y, int w, int h)
 void
 resizemouse(const Arg *arg)
 {
-	int ocx, ocy, nw, nh;
-	int sx, sy, sc = 0;
 	Client *c;
-	Monitor *m;
-	XEvent ev;
-	Time lasttime = 0;
 
 	if (!(c = selmon->sel))
 		return;
 	if (c->isfullscreen) /* no support resizing fullscreen windows by mouse */
 		return;
+
+	int ocx, ocy, nw, nh;
+	Monitor *m;
+	XEvent ev;
+	Time lasttime = 0;
+
 	restack(selmon);
 	ocx = c->x;
 	ocy = c->y;
 	if (XGrabPointer(dpy, root, False, MOUSEMASK, GrabModeAsync, GrabModeAsync,
 		None, cursor[CurResize]->cursor, CurrentTime) != GrabSuccess)
 		return;
-	if(warpres)
-		XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, c->w + c->bw - 1, c->h + c->bw - 1);
+#ifdef WARP_ON_RESIZE
+	XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, c->w + c->bw - 1, c->h + c->bw - 1);
+#endif
 	do {
 		XMaskEvent(dpy, MOUSEMASK|ExposureMask|SubstructureRedirectMask, &ev);
 		switch(ev.type) {
@@ -1540,12 +1552,6 @@ resizemouse(const Arg *arg)
 			handler[ev.type](&ev);
 			break;
 		case MotionNotify:
-			if(!sc){
-				sc = 1;
-				sx = ev.xmotion.x;
-				sy = ev.xmotion.y;
-			}
-
 			if ((ev.xmotion.time - lasttime) <= (1000 / 60))
 				continue;
 			lasttime = ev.xmotion.time;
@@ -1555,9 +1561,7 @@ resizemouse(const Arg *arg)
 			if (c->mon->wx + nw >= selmon->wx && c->mon->wx + nw <= selmon->wx + selmon->ww
 			&& c->mon->wy + nh >= selmon->wy && c->mon->wy + nh <= selmon->wy + selmon->wh)
 			{
-				if (!c->isfloating && selmon->lt[selmon->sellt]->arrange
-				&& (!warpres ? (abs(sx-ev.xmotion.x)>snap || abs(sy-ev.xmotion.y)>snap)
-				: (abs(nw - c->w) > snap || abs(nh - c->h) > snap)))
+				if (!c->isfloating && selmon->lt[selmon->sellt]->arrange)
 					togglefloating(NULL);
 			}
 			if (!selmon->lt[selmon->sellt]->arrange || c->isfloating)
@@ -1565,8 +1569,9 @@ resizemouse(const Arg *arg)
 			break;
 		}
 	} while (ev.type != ButtonRelease);
-	if(warpres)
-		XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, c->w + c->bw - 1, c->h + c->bw - 1);
+#ifdef WARP_ON_RESIZE
+	XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, c->w + c->bw - 1, c->h + c->bw - 1);
+#endif
 	XUngrabPointer(dpy, CurrentTime);
 	while (XCheckMaskEvent(dpy, EnterWindowMask, &ev));
 	if ((m = recttomon(c->x, c->y, c->w, c->h)) != selmon) {
