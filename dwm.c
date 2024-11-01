@@ -215,6 +215,7 @@ static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void tile(Monitor *m);
 static void togglebar(const Arg *arg);
+static void toggletopbar(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void togglefullscr(const Arg *arg);
 static void toggletag(const Arg *arg);
@@ -286,6 +287,7 @@ struct Pertag {
 	unsigned int sellts[LENGTH(tags) + 1]; /* selected layouts */
 	const Layout *ltidxs[LENGTH(tags) + 1][2]; /* matrix of tags and layouts indexes  */
 	int showbars[LENGTH(tags) + 1]; /* display bar for the current tag */
+	int topbars[LENGTH(tags) + 1];
 };
 
 /* compile-time check if all tags fit into an unsigned int bit array. */
@@ -674,6 +676,7 @@ createmon(void)
 		m->pertag->sellts[i] = m->sellt;
 
 		m->pertag->showbars[i] = m->showbar;
+		m->pertag->topbars[i] = m->topbar;
 	}
 
 	return m;
@@ -764,7 +767,7 @@ drawbar(Monitor *m)
 
 	int nullw = TEXTW("\0");
 
-	if(m == selmon){
+	if(m == selmon) {
 		char *stextc = strdup(stext);
 		char *tokn = strtok(stextc, "\\");
 		int toknw = TEXTW(tokn);
@@ -773,12 +776,12 @@ drawbar(Monitor *m)
 		char *toks = strtok(NULL, "\\");
 		int toksw = TEXTW(toks);
 
-		float mg = nullw;
 #ifdef USE_ARCS
-		mg *= 1.5;
+		float mg = nullw * 1.5;
 #else
-		mg *= 2;
+		float mg = nullw * 2;
 #endif
+
 		tw = (toknw + tokiw + toksw - mg) - lrpad + 2; /* 2px right padding */
 		drw_setscheme(drw, scheme[SchemeNorm]);
 		drw_text(drw, m->ww - tw, 0, toknw, bh, 0, tokn, 0);
@@ -823,7 +826,7 @@ drawbar(Monitor *m)
 			}
 
 			for(int j = 0; j < cam; j++) {
-				drw_rect(drw, x + padding + j * spacing + sone * j, bh-2, sone, 4,
+				drw_rect(drw, x + padding + j * spacing + sone * j, m->topbar ? -2 : (bh - 2), sone, 4,
 						m == selmon && selmon->sel && selmon->sel->tags & 1 << i,
 						urg & 1 << i);
 			}
@@ -1922,6 +1925,15 @@ togglebar(const Arg *arg)
 }
 
 void
+toggletopbar(const Arg *arg)
+{
+	selmon->topbar = selmon->pertag->topbars[selmon->pertag->curtag] = !selmon->topbar;
+	updatebarpos(selmon);
+	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx, selmon->by, selmon->ww, bh);
+	arrange(selmon);
+}
+
+void
 togglefloating(const Arg *arg)
 {
 	if (!selmon->sel)
@@ -1991,6 +2003,8 @@ toggleview(const Arg *arg)
 
 		if (selmon->showbar != selmon->pertag->showbars[selmon->pertag->curtag])
 			togglebar(NULL);
+		if (selmon->topbar != selmon->pertag->topbars[selmon->pertag->curtag])
+			toggletopbar(NULL);
 
 		focus(NULL);
 		arrange(selmon);
@@ -2335,6 +2349,8 @@ view(const Arg *arg)
 
 	if (selmon->showbar != selmon->pertag->showbars[selmon->pertag->curtag])
 		togglebar(NULL);
+	if (selmon->topbar != selmon->pertag->topbars[selmon->pertag->curtag])
+		toggletopbar(NULL);
 
 	focus(NULL);
 	arrange(selmon);

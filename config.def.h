@@ -64,6 +64,7 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_s,      spawn,          {.v=(const char *[]){"screenshot", NULL}}},
 
 	{ MODKEY,                       XK_space,  togglebar,      {0} },
+	{ MODKEY|ControlMask,           XK_space,  toggletopbar,   {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
