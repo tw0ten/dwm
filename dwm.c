@@ -189,6 +189,10 @@ static void maprequest(XEvent *e);
 static void monocle(Monitor *m);
 static void motionnotify(XEvent *e);
 static void movemouse(const Arg *arg);
+static void movekeyboard_x(const Arg *arg);
+static void movekeyboard_y(const Arg *arg);
+static void resizekeyboard_w(const Arg *arg);
+static void resizekeyboard_h(const Arg *arg);
 static Client *nexttiled(Client *c);
 static void pop(Client *c);
 static void propertynotify(XEvent *e);
@@ -1394,6 +1398,106 @@ movemouse(const Arg *arg)
 		}
 	} while (ev.type != ButtonRelease);
 	XUngrabPointer(dpy, CurrentTime);
+	if ((m = recttomon(c->x, c->y, c->w, c->h)) != selmon) {
+		sendmon(c, m);
+		selmon = m;
+		focus(NULL);
+	}
+}
+
+void
+movekeyboard_x(const Arg *arg){
+	Client *c;
+	Monitor *m;
+
+	if (!(c = selmon->sel))
+		return;
+
+	if (c->isfullscreen)
+		return;
+
+	restack(selmon);
+
+	if (selmon->lt[selmon->sellt]->arrange)
+		if (!c->isfloating)
+			togglefloating(NULL);
+	resize(c, c->x + arg->i, c->y, c->w, c->h, 1);
+
+	if ((m = recttomon(c->x, c->y, c->w, c->h)) != selmon) {
+		sendmon(c, m);
+		selmon = m;
+		focus(NULL);
+	}
+}
+
+void
+movekeyboard_y(const Arg *arg){
+	Client *c;
+	Monitor *m;
+
+	if (!(c = selmon->sel))
+		return;
+
+	if (c->isfullscreen)
+		return;
+
+	restack(selmon);
+
+	if (selmon->lt[selmon->sellt]->arrange)
+		if (!c->isfloating)
+			togglefloating(NULL);
+	resize(c, c->x, c->y + arg->i, c->w, c->h, 1);
+
+	if ((m = recttomon(c->x, c->y, c->w, c->h)) != selmon) {
+		sendmon(c, m);
+		selmon = m;
+		focus(NULL);
+	}
+}
+
+void
+resizekeyboard_w(const Arg *arg){
+	Client *c;
+	Monitor *m;
+
+	if (!(c = selmon->sel))
+		return;
+
+	if (c->isfullscreen)
+		return;
+
+	restack(selmon);
+
+	if (selmon->lt[selmon->sellt]->arrange)
+		if (!c->isfloating)
+			togglefloating(NULL);
+	resize(c, c->x, c->y, c->w + arg->i, c->h, 1);
+
+	if ((m = recttomon(c->x, c->y, c->w, c->h)) != selmon) {
+		sendmon(c, m);
+		selmon = m;
+		focus(NULL);
+	}
+}
+
+void
+resizekeyboard_h(const Arg *arg){
+	Client *c;
+	Monitor *m;
+
+	if (!(c = selmon->sel))
+		return;
+
+	if (c->isfullscreen)
+		return;
+
+	restack(selmon);
+
+	if (selmon->lt[selmon->sellt]->arrange)
+		if (!c->isfloating)
+			togglefloating(NULL);
+	resize(c, c->x, c->y, c->w, c->h + arg->i, 1);
+
 	if ((m = recttomon(c->x, c->y, c->w, c->h)) != selmon) {
 		sendmon(c, m);
 		selmon = m;

@@ -4,12 +4,13 @@
 #define ICONSIZE 16
 #define USE_ARCS
 // #define WARP_ON_RESIZE
-static const unsigned int gappx     = 4;
-static const unsigned int borderpx  = 1;        /* border pixel of windows */
-static const unsigned int snap      = 8;        /* snap pixel */
-static const int showbar            = 1;        /* 0 means no bar */
-static const int topbar             = 0;        /* 0 means bottom bar */
-static const char *fonts[]          = { "JetBrainsMono-Regular:size=8", "SymbolsNerdFontMono-Regular:size=6" };
+static const int movepx            = 32;
+static const unsigned int gappx    = 4;
+static const unsigned int borderpx = 1;        /* border pixel of windows */
+static const unsigned int snap     = 8;        /* snap pixel */
+static const int showbar           = 1;        /* 0 means no bar */
+static const int topbar            = 0;        /* 0 means bottom bar */
+static const char *fonts[]         = { "JetBrainsMono-Regular:size=8", "SymbolsNerdFontMono-Regular:size=6" };
 
 static const char *colors[][3]      = {
 	/*               fg      bg      border   */
@@ -54,14 +55,15 @@ static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, topbar ? NULL : "
 #define MODKEY Mod4Mask
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY|ShiftMask,             XK_Delete, quit,           {0} },
-	{ MODKEY,                       XK_x,      spawn,          {.v = dmenucmd } },
-	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v=(const char *[]){"terminal", NULL}}},
-	{ MODKEY,                       XK_c,      spawn,          {.v=(const char *[]){"lock", NULL}}},
-	{ MODKEY,                       XK_z,      spawn,          {.v=(const char *[]){"smenu", NULL}}},
-	{ MODKEY,                       XK_Delete, spawn,          {.v=(const char *[]){"dconfirm", "poweroff", "systemctl poweroff", NULL}}},
-	{ MODKEY,                       XK_BackSpace, spawn,       {.v=(const char *[]){"dconfirm", "reboot", "systemctl reboot", NULL}}},
-	{ MODKEY|ShiftMask,             XK_s,      spawn,          {.v=(const char *[]){"screenshot", NULL}}},
+	{ MODKEY|ShiftMask, XK_Delete, quit, {0} },
+
+	{ MODKEY,           XK_x,         spawn, {.v= dmenucmd } },
+	{ MODKEY|ShiftMask, XK_Return,    spawn, {.v=(char*[]){"terminal", NULL}}},
+	{ MODKEY,           XK_c,         spawn, {.v=(char*[]){"lock", NULL}}},
+	{ MODKEY,           XK_z,         spawn, {.v=(char*[]){"smenu", NULL}}},
+	{ MODKEY,           XK_Delete,    spawn, {.v=(char*[]){"dconfirm", "poweroff", "systemctl poweroff", NULL}}},
+	{ MODKEY,           XK_BackSpace, spawn, {.v=(char*[]){"dconfirm", "reboot", "systemctl reboot", NULL}}},
+	{ MODKEY|ShiftMask, XK_s,         spawn, {.v=(char*[]){"screenshot", NULL}}},
 
 	{ MODKEY,                       XK_space,  togglebar,      {0} },
 	{ MODKEY|ControlMask,           XK_space,  toggletopbar,   {0} },
@@ -78,17 +80,26 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_f,      togglefullscr,  {0} },
 	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
 	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
-	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
-	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
-	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
-	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
-	{ MODKEY,                       XK_q,      shiftview,      { -1 } },
-	{ MODKEY,                       XK_e,      shiftview,      { +1 } },
+	{ MODKEY,           XK_comma,  focusmon, {.i = -1 } },
+	{ MODKEY,           XK_period, focusmon, {.i = +1 } },
+	{ MODKEY|ShiftMask, XK_comma,  tagmon,   {.i = -1 } },
+	{ MODKEY|ShiftMask, XK_period, tagmon,   {.i = +1 } },
+	{ MODKEY, XK_q, shiftview, { -1 } },
+	{ MODKEY, XK_e, shiftview, { +1 } },
+	{ MODKEY|ControlMask, XK_Right, movekeyboard_x,   {.i = +movepx } },
+	{ MODKEY|ControlMask, XK_Left,  movekeyboard_x,   {.i = -movepx } },
+	{ MODKEY|ControlMask, XK_Down,  movekeyboard_y,   {.i = +movepx } },
+	{ MODKEY|ControlMask, XK_Up,    movekeyboard_y,   {.i = -movepx } },
+	{ MODKEY|ShiftMask,   XK_Right, resizekeyboard_w, {.i = +movepx } },
+	{ MODKEY|ShiftMask,   XK_Left,  resizekeyboard_w, {.i = -movepx } },
+	{ MODKEY|ShiftMask,   XK_Down,  resizekeyboard_h, {.i = +movepx } },
+	{ MODKEY|ShiftMask,   XK_Up,    resizekeyboard_h, {.i = -movepx } },
 
-	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
-	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
-	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
-	{ MODKEY,                       XK_s,      setlayout,      {.v = &layouts[3]} },
+	{ MODKEY, XK_t, setlayout, {.v = &layouts[0]} },
+	{ MODKEY, XK_f, setlayout, {.v = &layouts[1]} },
+	{ MODKEY, XK_m, setlayout, {.v = &layouts[2]} },
+	{ MODKEY, XK_s, setlayout, {.v = &layouts[3]} },
+
 #define TAG(k,t) \
 	{ MODKEY,                       k,         view,           {.ui = 1 << t} }, \
 	{ MODKEY|ControlMask,           k,         toggleview,     {.ui = 1 << t} }, \
