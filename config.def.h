@@ -55,7 +55,7 @@ static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, topbar ? NULL : "
 #define MODKEY Mod4Mask
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY|ShiftMask, XK_Delete, quit, {0} },
+	{ MODKEY|ShiftMask, XK_Escape, quit, {0} },
 
 	{ MODKEY,           XK_x,         spawn, {.v= dmenucmd } },
 	{ MODKEY|ShiftMask, XK_Return,    spawn, {.v=(char*[]){"terminal", NULL}}},
